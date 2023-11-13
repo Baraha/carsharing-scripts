@@ -1,5 +1,3 @@
--- Active: 1699882456276@@127.0.0.1@5432@carsharing
-
 -- CLIENT
 
 CREATE SEQUENCE IF NOT EXISTS seq_client;
@@ -28,8 +26,10 @@ CREATE TABLE
     car_id BIGINT DEFAULT nextVal ('seq_car') NOT NULL PRIMARY KEY,
     company_name VARCHAR(100) NOT NULL,
     model VARCHAR(255),
+    expluatation_expired_date TIMESTAMP NOT NULL,
     serial_code INT,
-    use_type INT, -- for commertial | base
+    car_status INT, -- 1) активный 2) в ремонте 3) вышел из эксплуатации 
+    use_type INT, -- для коммерции, основной
     code_kasko VARCHAR(20)
   );
 
@@ -98,6 +98,7 @@ CREATE SEQUENCE IF NOT EXISTS seq_insurance_company;
 CREATE TABLE
   IF NOT EXISTS insurance_company (
     insurance_company_id BIGINT DEFAULT nextVal ('seq_insurance_company') NOT NULL PRIMARY KEY,
+    kasko_code INT NOT NULL,
     name VARCHAR(100) NOT NULL
   );
 
@@ -108,10 +109,11 @@ CREATE INDEX IF NOT EXISTS idx1_insurance_company ON insurance_company (insuranc
 
 CREATE SEQUENCE IF NOT EXISTS  seq_order_violation;
 
-CREATE TABLE
-  IF NOT EXISTS order_violation (
+CREATE TABLE 
+    IF NOT EXISTS order_violation (
     order_violation_id BIGINT DEFAULT nextVal ('seq_order_violation') NOT NULL PRIMARY KEY,
     fine_pay FLOAT NOT NULL,
+    client_id BIGINT CONSTRAINT fk_client REFERENCES client (client_id),
     violation_code INT,
     code_GIBDD_department INT NOT NULL
   );
