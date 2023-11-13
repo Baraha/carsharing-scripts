@@ -1,6 +1,6 @@
 
 /****************************************************************************/
-/* Change object: AddNewDiscount                   */
+/* Change object: GetCarHistoryInfo                   */
 /****************************************************************************/
 
 CREATE OR REPLACE FUNCTION GetCarHistoryInfo(
@@ -41,6 +41,47 @@ $$
 
         INNER JOIN client client_data ON
         client_data.client_id = hist_data.client_id
+
+    WHERE hist_data.car_id = param_car_id;
+$$;
+
+
+/****************************************************************************/
+/* Change object: GetCarServiceHistoryInfo                   */
+/****************************************************************************/
+
+CREATE OR REPLACE FUNCTION GetCarServiceHistoryInfo(
+        param_car_id BIGINT
+) RETURNS TABLE(employee_full_name CHARACTER, employee_subdivision_code INT, employee_loyalty_level INT,
+                car_company_name CHARACTER, car_model CHARACTER,  car_status INT, car_serial_code INT,
+                carservice_name CHARACTER, serial_code INT, repair_fee FLOAT, repair_type INT)
+  language sql
+AS
+$$
+    -- EMPLOYEE
+    SELECT employee_data.full_name as employee_full_name,
+        employee_data.subdivision_code as employee_subdivision_code,
+        employee_data.loyalty_level as employee_loyalty_level,
+    -- CAR
+        car_data.company_name as car_company_name,
+        car_data.model as car_model,
+        car_data.car_status as car_status,
+        car_data.serial_code as car_serial_code,
+    -- CARSERVICE
+        carservice_data.name  as carservice_name ,
+    -- HISTORY
+        hist_data.serial_code as serial_code,
+        hist_data.repair_fee as repair_fee,
+        hist_data.repair_type as repair_type
+    FROM repair_car_history AS hist_data
+        INNER JOIN employee employee_data ON
+        employee_data.employee_id = hist_data.employee_id
+
+        INNER JOIN car car_data ON
+        car_data.car_id = hist_data.car_id
+
+        INNER JOIN carservice carservice_data ON
+        carservice_data.carservice_id = hist_data.carservice_id
 
     WHERE hist_data.car_id = param_car_id;
 $$;
