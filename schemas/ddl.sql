@@ -45,7 +45,6 @@ CREATE TABLE
     discount_id BIGINT DEFAULT nextVal ('seq_discount') NOT NULL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     discount_percent INT,
-    work_type VARCHAR(100),
     loyalty_level INT,
     usage_type INT, -- good drive style | promocode | first use 
     date_expire TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
