@@ -24,7 +24,7 @@ $$;
 /****************************************************************************/
 /* Change object: GetClientID                   */
 /****************************************************************************/
-CREATE OR REPLACE FUNCTION GetClientInfo(
+CREATE OR REPLACE FUNCTION GetClientID(
   param_full_name CHARACTER
 ) RETURNS BIGINT
   language sql

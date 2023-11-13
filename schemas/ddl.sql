@@ -9,7 +9,7 @@ CREATE TABLE
     date_of_birth TIMESTAMP NOT NULL,
     INN VARCHAR(255),
     loyalty_level INT,
-    driver_licence_ID VARCHAR(10),
+    driver_licence_ID VARCHAR(20),
     last_update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
