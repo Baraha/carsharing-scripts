@@ -20,6 +20,7 @@ $$;
 /* Change object: AddNewDiscount                   */
 /****************************************************************************/
 CREATE OR REPLACE PROCEDURE AddNewDiscount(
+    param_name CHARACTER,
     param_discount_percent INT,
     param_loyalty_level INT,
     param_usage_type INT,
@@ -27,7 +28,7 @@ CREATE OR REPLACE PROCEDURE AddNewDiscount(
   language sql
 as
 $$
-    INSERT INTO discount (discount_percent, loyalty_level, usage_type, date_expire)
-    VALUES (param_discount_percent, param_loyalty_level, param_usage_type,param_date_expire);
+    INSERT INTO discount (name, discount_percent, loyalty_level, usage_type, date_expire)
+    VALUES (param_name, param_discount_percent, param_loyalty_level, param_usage_type,param_date_expire);
 $$;
 

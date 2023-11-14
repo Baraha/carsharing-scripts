@@ -8,12 +8,13 @@ CREATE OR REPLACE PROCEDURE AddNewCar(
     param_serial_code INT,
     param_car_status INT,
     param_use_type INT,
-    param_code_kasko CHARACTER)
+    param_code_kasko CHARACTER,
+    param_exp_expired_day TIMESTAMP)
   language sql
 as
 $$
-    INSERT INTO car (company_name,  model, serial_code, use_type, car_status, code_kasko)
-    VALUES (param_company_name, param_model, param_serial_code, param_use_type, param_car_status, param_code_kasko);
+    INSERT INTO car (company_name,  model, serial_code, use_type, car_status, code_kasko,expluatation_expired_date)
+    VALUES (param_company_name, param_model, param_serial_code, param_use_type, param_car_status, param_code_kasko, param_exp_expired_day);
 $$;
 
 
@@ -36,8 +37,7 @@ $$
         model,
         serial_code,
         use_type, 
-        code_kasko,
-        status,
+        code_kasko
         FROM car
     WHERE car_id = param_car_id;
 $$;
@@ -92,10 +92,40 @@ $$;
 
 
 /****************************************************************************/
-/* Change object: SetNewCarStatus                   */
+/* Change object: BookingCar                   */
 /****************************************************************************/
 
-CREATE OR REPLACE PROCEDURE SetNewCarStatus(
+CREATE OR REPLACE PROCEDURE BookingCar(
+    param_car_id BIGINT, param_client_id BIGINT)
+  language sql
+as
+$$ 
+    UPDATE car 
+    SET car_status = 3, client_id = param_client_id
+    WHERE car_id = param_car_id;
+$$;
+
+/****************************************************************************/
+/* Change object: UnBookingCar                   */
+/****************************************************************************/
+
+CREATE OR REPLACE PROCEDURE UnBookingCar(
+    param_car_id BIGINT)
+  language sql
+as
+$$ 
+    UPDATE car 
+    SET car_status = 1, client_id = NULL
+    WHERE car_id = param_car_id;
+$$;
+
+
+
+/****************************************************************************/
+/* Change object: BookingCar                   */
+/****************************************************************************/
+
+CREATE OR REPLACE PROCEDURE BookingCar(
     param_car_id BIGINT, param_car_status INT)
   language sql
 as
@@ -117,7 +147,7 @@ CREATE OR REPLACE FUNCTION CheckAndDeleteExparedCars() RETURNS TRIGGER
         IF (TG_OP = 'UPDATE') THEN
             -- Проверить, обновляемый обьект не с устаревшей датой или в заблокированном статусе
             SELECT expluatation_expired_date, car_status INTO ps_row FROM car WHERE car_id = NEW.car_id;
-             IF (ps.data_experation_time < NOW() OR ps.car_status = 3 ) THEN
+             IF (ps_row.expluatation_expired_date < NOW() OR ps_row.car_status = 4 ) THEN
 
                 DELETE FROM car WHERE car_id = NEW.car_id;
                 RAISE EXCEPTION 'тс вышел из эксплуатации';

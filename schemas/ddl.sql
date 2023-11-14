@@ -28,7 +28,8 @@ CREATE TABLE
     model VARCHAR(255),
     expluatation_expired_date TIMESTAMP NOT NULL,
     serial_code INT,
-    car_status INT, -- 1) активный 2) в ремонте 3) вышел из эксплуатации 
+    car_status INT, -- 1) активный 2) в ремонте 3) Забронирован 4) вышел из эксплуатации 
+    client_id BIGINT CONSTRAINT fk_client REFERENCES client (client_id),
     use_type INT, -- для коммерции, основной
     code_kasko VARCHAR(20)
   );
@@ -62,11 +63,8 @@ CREATE TABLE
   IF NOT EXISTS carservice (
     carservice_id BIGINT DEFAULT nextVal ('seq_carservice') NOT NULL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    discount_percent INT,
-    work_type VARCHAR(100),
-    loyalty_level INT,
-    usage_type INT, -- good drive style | promocode | first use 
-    date_expire TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    adress VARCHAR(100),
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
   );
 
 CREATE INDEX IF NOT EXISTS idx1_carservice ON carservice (carservice_id);
@@ -128,9 +126,10 @@ CREATE TABLE
     order_repair_id BIGINT DEFAULT nextVal ('seq_order_repair') NOT NULL PRIMARY KEY,
     insurance_company_id BIGINT CONSTRAINT fk_insurance_company REFERENCES insurance_company (insurance_company_id),
     car_id  BIGINT CONSTRAINT fk_car REFERENCES car (car_id),
-    client_id BIGINT CONSTRAINT fk_client REFERENCES client (client_id),
+    employee_id BIGINT CONSTRAINT fk_employee REFERENCES employee (employee_id),
     repair_part INT NOT NULL, -- | Капот, Бампер, Крыша, Колеса, Левое крыло, Правое крыло, Задние фары, Передние фары, Стекла, Салон, Внутренняя поломка
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    repair_type INT, -- мойка, замена запчастей, снятие с эксплуатации
     photo_registration_link VARCHAR(100) NOT NULL,
     comment VARCHAR(256) NOT NULL
   );
@@ -172,4 +171,5 @@ CREATE TABLE
     repair_type INT -- мойка, замена запчастей, снятие с эксплуатации
   );
 
-CREATE INDEX IF NOT EXISTS idx1_order_repair ON order_repair (order_repair_id);
+CREATE INDEX IF NOT EXISTS idx1_repair_car_history ON repair_car_history (repair_car_history_id);
+

@@ -6,15 +6,12 @@
 CREATE OR REPLACE FUNCTION GetServiceInfo(
   param_carservice_id BIGINT
 ) RETURNS TABLE(name CHARACTER,
-    discount_percent INT,
-    work_type CHARACTER,
-    loyalty_level INT,
-    usage_type INT,
-    date_expire TIMESTAMP)
+    adress CHARACTER,
+    creation_date TIMESTAMP)
   language sql
 as
 $$
-    SELECT name, discount_percent,work_type, loyalty_level, usage_type, date_expire FROM carservice
+    SELECT name, adress, creation_date FROM carservice
     WHERE carservice_id = param_carservice_id;
 $$;
 
@@ -40,13 +37,16 @@ $$;
 CREATE OR REPLACE PROCEDURE AddNewRepairOrder(
     param_insurance_company_id BIGINT,
     param_car_id BIGINT,
-    param_client_id BIGINT,
+    param_employee_id BIGINT,
+    param_repair_type INT,
     param_repair_part INT,
     param_photo_registration_link CHARACTER,
     param_comment CHARACTER) 
   language sql
 as
 $$
-    INSERT INTO order_repair (insurance_company_id,car_id,client_id,repair_part, photo_registration_link,comment)
-    VALUES (param_insurance_company_id, param_car_id, param_client_id,param_repair_part, param_photo_registration_link,param_comment);
+    INSERT INTO order_repair (insurance_company_id,car_id,employee_id,repair_type,repair_part, photo_registration_link,comment)
+    VALUES (param_insurance_company_id, param_car_id, param_employee_id,param_repair_type,param_repair_part, param_photo_registration_link,param_comment);
 $$;
+
+
