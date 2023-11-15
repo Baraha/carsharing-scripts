@@ -46,3 +46,7 @@ VALUES ('Страховая компания ТРАНС',1241211);
 
 INSERT INTO insurance_company (name,kasko_code)
 VALUES ('Страховая компания ЭКСТРА',1001);
+
+ INSERT INTO order_violation 
+ (fine_pay, client_id, violation_code, code_gibdd_department) 
+ VALUES (950.00, 2, 20, 202011);

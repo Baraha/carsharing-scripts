@@ -90,17 +90,14 @@ $$;
 /* Change object: AddNewCarHistoryEntry                   */
 /****************************************************************************/
 
-CREATE OR REPLACE FUNCTION AddNewCarHistoryEntry() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION AddCarHistoryEntry() RETURNS TRIGGER 
     AS $trigger$
-    DECLARE
-        ps_row RECORD;
     BEGIN
         IF (TG_OP = 'UPDATE' AND NEW.car_status != 1) THEN
             -- Проверить, обновляемый обьект не с устаревшей датой или в заблокированном статусе
-            SELECT expluatation_expired_date, car_status INTO ps_row FROM car WHERE car_id = NEW.car_id;
-             IF (ps_row.expluatation_expired_date < NOW() OR ps_row.car_status = 3) THEN
+            IF (OLD.client_id IS NOT NULL) THEN
                 RAISE EXCEPTION 'тс уже забронирован';
-        END IF;
+            END IF;
 
         INSERT INTO usage_car_history(discount_id,client_id,car_id)
         VALUES (2, NEW.client_id, OLD.car_id);
@@ -111,8 +108,8 @@ CREATE OR REPLACE FUNCTION AddNewCarHistoryEntry() RETURNS TRIGGER
 $trigger$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE TRIGGER AddNewCarHistoryEntry BEFORE UPDATE OF client_id ON car 
-        FOR EACH ROW EXECUTE PROCEDURE AddNewCarHistoryEntry();
+CREATE OR REPLACE TRIGGER AddCarHistoryEntry BEFORE UPDATE OF client_id ON car 
+        FOR EACH ROW EXECUTE PROCEDURE AddCarHistoryEntry();
 
 
 /****************************************************************************/
@@ -122,13 +119,19 @@ CREATE OR REPLACE TRIGGER AddNewCarHistoryEntry BEFORE UPDATE OF client_id ON ca
 CREATE OR REPLACE FUNCTION AddNewCarServiceHistoryEntry() RETURNS TRIGGER 
     AS $trigger$
     DECLARE
-        rt INT;
+        rt record;
         cr_service_id INT;
     BEGIN
-    rt = (SELECT serial_code FROM car WHERE car_id = NEW.car_id);
+
+    SELECT serial_code, car_status INTO rt FROM car WHERE car_id = NEW.car_id;
+      -- Проверить, находится ли тс в статусе ремонт
+    IF (rt.car_status != 2) THEN
+        RAISE EXCEPTION 'тс не находится в статусе ремонт';
+    END IF;
+
     cr_service_id = (SELECT carservice_id FROM employee WHERE employee_id = NEW.employee_id);
     INSERT INTO repair_car_history(employee_id, car_id, carservice_id, serial_code, repair_type)
-    VALUES (NEW.employee_id, NEW.car_id, cr_service_id,rt,NEW.repair_type);
+    VALUES (NEW.employee_id, NEW.car_id, cr_service_id,rt.serial_code,NEW.repair_type);
     RETURN NEW;
      END;
 $trigger$ LANGUAGE plpgsql;

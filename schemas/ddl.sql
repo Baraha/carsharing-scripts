@@ -145,7 +145,7 @@ CREATE TABLE
   IF NOT EXISTS usage_car_history (
     usage_car_history_id BIGINT DEFAULT nextVal ('seq_usage_car_history') NOT NULL PRIMARY KEY,
     discount_id BIGINT CONSTRAINT fk_discount  REFERENCES discount (discount_id),
-    car_id BIGINT CONSTRAINT fk_car REFERENCES car (car_id),
+    car_id BIGINT CONSTRAINT fk_car REFERENCES car (car_id) ON DELETE CASCADE,
     client_id BIGINT CONSTRAINT fk_client REFERENCES client (client_id),
     creation_order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     stop_order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

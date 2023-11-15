@@ -126,30 +126,25 @@ $$;
 /****************************************************************************/
 
 CREATE OR REPLACE PROCEDURE BookingCar(
-    param_car_id BIGINT, param_car_status INT)
+    param_car_id BIGINT, param_client_id BIGINT)
   language sql
 as
 $$
     UPDATE car 
-    SET car_status = param_car_status
+    SET car_status = 3, client_id=param_client_id
     WHERE car_id = param_car_id;
 $$;
 
 /****************************************************************************/
-/* Change object: CheckAndDeleteExparedCars                   */
+/* процедура: CheckAndDeleteExparedCars                   */
 /****************************************************************************/
 
 CREATE OR REPLACE FUNCTION CheckAndDeleteExparedCars() RETURNS TRIGGER 
     AS $trigger$
-    DECLARE
-        ps_row RECORD; -- Обьявеление типа строки
     BEGIN
-        IF (TG_OP = 'UPDATE') THEN
+        IF (TG_OP = 'UPDATE' ) THEN
             -- Проверить, обновляемый обьект не с устаревшей датой или в заблокированном статусе
-            SELECT expluatation_expired_date, car_status INTO ps_row FROM car WHERE car_id = NEW.car_id;
-             IF (ps_row.expluatation_expired_date < NOW() OR ps_row.car_status = 4 ) THEN
-
-                DELETE FROM car WHERE car_id = NEW.car_id;
+             IF (OLD.expluatation_expired_date < NOW() OR OLD.car_status = 4 ) THEN
                 RAISE EXCEPTION 'тс вышел из эксплуатации';
             END IF;
         END IF;
@@ -158,8 +153,8 @@ CREATE OR REPLACE FUNCTION CheckAndDeleteExparedCars() RETURNS TRIGGER
 $trigger$ LANGUAGE plpgsql;
 
 /****************************************************************************/
-/* Change object: DeleteOldCars                   */
+/* триггер: DeleteOldCars                   */
 /****************************************************************************/
 
-CREATE OR REPLACE TRIGGER DeleteOldCars BEFORE UPDATE ON car
+CREATE OR REPLACE TRIGGER DeleteOldCars BEFORE UPDATE OF client_id ON car 
         FOR EACH ROW EXECUTE PROCEDURE CheckAndDeleteExparedCars();
