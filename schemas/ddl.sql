@@ -17,6 +17,7 @@ CREATE TABLE
 
 CREATE INDEX IF NOT EXISTS idx1_client ON client (client_id);
 
+
 -- CAR
 
 CREATE SEQUENCE IF NOT EXISTS seq_car;
@@ -52,6 +53,20 @@ CREATE TABLE
   );
 
 CREATE INDEX IF NOT EXISTS idx1_discount ON discount (discount_id);
+
+
+-- CLIENT_DISCOUNT
+
+CREATE SEQUENCE IF NOT EXISTS seq_client_discount;
+
+CREATE TABLE
+  IF NOT EXISTS client_discount (
+    client_discount_id BIGINT DEFAULT nextVal('seq_client_discount') NOT NULL PRIMARY KEY,
+    client_id BIGINT CONSTRAINT fk_client REFERENCES client (client_id),
+    discount_id BIGINT CONSTRAINT fk_discount REFERENCES discount (discount_id)
+  );
+
+CREATE INDEX IF NOT EXISTS idx1_client_discount ON client_discount (client_discount_id);
 
 
 -- CARSERVICE
@@ -110,12 +125,27 @@ CREATE TABLE
     IF NOT EXISTS order_violation (
     order_violation_id BIGINT DEFAULT nextVal ('seq_order_violation') NOT NULL PRIMARY KEY,
     fine_pay FLOAT NOT NULL,
-    client_id BIGINT CONSTRAINT fk_client REFERENCES client (client_id),
     violation_code INT,
     code_GIBDD_department INT NOT NULL
   );
 
 CREATE INDEX IF NOT EXISTS idx1_order_violation ON order_violation (order_violation_id);
+
+
+
+-- VIOLATION_ORDER_CLIENT
+
+CREATE SEQUENCE IF NOT EXISTS seq_order_violation_client;
+
+CREATE TABLE
+  IF NOT EXISTS violation_order_client (
+    client_discount_id BIGINT DEFAULT nextVal('seq_order_violation_client') NOT NULL PRIMARY KEY,
+    client_id BIGINT CONSTRAINT fk_client REFERENCES client (client_id),
+    order_violation_id BIGINT CONSTRAINT fk_order_violation REFERENCES  order_violation (order_violation_id)
+  );
+
+CREATE INDEX IF NOT EXISTS idx1_client_discount ON client_discount (client_discount_id);
+
 
 -- ORDER REPAIR
 
